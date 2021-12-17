@@ -1,9 +1,10 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 public class ActionWhenHovered : MonoBehaviour
 {
     public Hoverable hoverableBehavior;
-    public GameObject ObjectToShowOnHover;
+    public List<GameObject> ObjectToShowOnHover;
 
     // Use this for initialization
     void Start()
@@ -16,7 +17,8 @@ public class ActionWhenHovered : MonoBehaviour
         if(isActiveAndEnabled &&  hoverableBehavior && ObjectToShowOnHover != null)
         {
             bool isHovered = hoverableBehavior.GetIsHovered();
-            ObjectToShowOnHover.SetActive(isHovered);
+
+            HoverObjsSetActive(isHovered);
         }
     }
 
@@ -24,7 +26,15 @@ public class ActionWhenHovered : MonoBehaviour
     {
         if (ObjectToShowOnHover != null)
         {
-            ObjectToShowOnHover.SetActive(false);
+            HoverObjsSetActive(false);
+        }
+    }
+
+    private void HoverObjsSetActive(bool active)
+    {
+        foreach(GameObject ob in ObjectToShowOnHover)
+        {
+            ob.SetActive(active);
         }
     }
 }

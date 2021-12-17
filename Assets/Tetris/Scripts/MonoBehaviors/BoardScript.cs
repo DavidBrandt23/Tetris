@@ -2,6 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
+public enum GameModes { Normal, Rainbow, Hyper }
+
+public class GameModeSettings
+{
+    public static GameModes SelectedMode = GameModes.Normal;
+}
+
 public class BoardScript : MonoBehaviour
 {
     public const int boardWidth = 10;
@@ -31,19 +39,30 @@ public class BoardScript : MonoBehaviour
     private bool canHold;
     private int level = 1;
     private float fallInterval;
+    private bool rainbowPieces;
 
     // Start is called before the first frame update
     void Start()
     {
+        switch (GameModeSettings.SelectedMode)
+        {
+            case GameModes.Rainbow:
+                rainbowPieces = true;
+                break;
+            case GameModes.Hyper:
+                SetLevel(15, false);
+                break;
+        }
+
         board = CreateSquareGrid(transform, boardWidth, boardHeight, SquarePrefab, true);
         activePieceUI = CreateSquareGrid(transform, boardWidth, boardHeight, SquarePrefab, false);
 
         myPiece = new GamePiece
         {
-            pieceData = Piece.GetRandomPiece()
+            pieceData = GetNextRandomPiece()
         };
 
-        nextPiece = Piece.GetRandomPiece();
+        nextPiece = GetNextRandomPiece();
         StartNextPiece();
     }
 
@@ -145,13 +164,17 @@ public class BoardScript : MonoBehaviour
         return newGrid;
     }
 
+    private Piece GetNextRandomPiece(Piece notThis = null)
+    {
+        return Piece.GetRandomPiece(notThis, rainbowPieces);
+    }
     //toUse is set when using Hold piece
     private void StartNextPiece(Piece toUse = null)
     {
         if(toUse == null)
         {
             myPiece.pieceData = nextPiece;
-            nextPiece = Piece.GetRandomPiece(nextPiece);
+            nextPiece = GetNextRandomPiece(nextPiece);
             NextPiecePreview.SetPiece(nextPiece);
             canHold = true;
         }
@@ -399,17 +422,32 @@ public class BoardScript : MonoBehaviour
 
     private void UpdateLevel()
     {
-        int oldLevel = level;
-        level = ((int)(score / 10.0f)) + 1;
-        if (level > 15)
+        int newLevel = level;
+        int calculdatedLevel = ((int)(score / 10.0f)) + 1;
+        if (calculdatedLevel > 15)
         {
-            level = 15;
+            calculdatedLevel = 15;
         }
-        levelText.SetText("Level: " + level);
-        if(oldLevel != level)
+
+        //only increase
+        if(calculdatedLevel > level)
         {
-            soundManager.PlayLevelUpSound();
-            levelText.StartFlash();
+            newLevel = calculdatedLevel;
+        }
+
+        SetLevel(newLevel,true);
+    }
+    private void SetLevel(int newLevel, bool playNoise)
+    {
+        if (newLevel != level)
+        {
+            level = newLevel;
+            if (playNoise)
+            {
+                soundManager.PlayLevelUpSound();
+                levelText.StartFlash();
+            }
+            levelText.SetText("Level: " + level);
         }
     }
 

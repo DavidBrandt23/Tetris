@@ -6,14 +6,27 @@ public class Piece
     private bool[,] layout;
     private Color color;
 
-    public static Piece GetRandomPiece(Piece notThis = null)
+    public static Piece GetRandomPiece(Piece notThis = null, bool withRandomColor = false, bool useAltShapes= false)
     {
-        Piece toReturn = GetPiece(Random.Range(0, 7));
-        while (toReturn.color.Equals(notThis?.color))
+        List<Piece> pieces = CreatePieceList(useAltShapes);
+        Piece toReturn = pieces[Random.Range(0, pieces.Count)];
+        while (toReturn.IsSameShape(notThis))
         {
-            toReturn = GetPiece(Random.Range(0, 7));
+            toReturn = pieces[Random.Range(0, pieces.Count)];
+        }
+
+        if (withRandomColor)
+        {
+            toReturn.color = RandomColor();
         }
         return toReturn;
+    }
+    private static Color RandomColor()
+    {
+        float r = Random.Range(0.0f, 1.0f);
+        float g = Random.Range(0.0f, 1.0f);
+        float b = Random.Range(0.0f, 1.0f);
+        return new Color(r, g, b);
     }
 
     public Color GetColor()
@@ -21,96 +34,193 @@ public class Piece
         return color;
     }
 
-    public static Piece GetPiece(int type)
+    private bool IsSameShape(Piece other)
     {
-        if (type < 0 || type > 6)
+        if(other == null)
         {
-            throw new System.Exception("invalid type passed to GetPiece");
+            return false;
         }
-        List<Piece> pieces = CreatePieceList();
-
-        return pieces[type];
+        bool[,] otherLayout = other.layout;
+        if (layout.GetLength(0) != otherLayout.GetLength(0) ||
+            layout.GetLength(1) != otherLayout.GetLength(1))
+        {
+            return false;
+        }
+        for (int x = 0; x < layout.GetLength(0); x++)
+        {
+            for(int y = 0; y < layout.GetLength(1); y++)
+            {
+                if(layout[x,y] != otherLayout[x, y])
+                {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
-    private static List<Piece> CreatePieceList()
+    private static List<Piece> CreatePieceList(bool altList = false)
     {
         List<Piece> pieces = new List<Piece>();
-        Piece t = new Piece
+        if (!altList)
         {
-            layout = new bool[,] {
+            Piece t = new Piece
+            {
+                layout = new bool[,] {
             {false,true,false},
             {true,true,true},
             {false,false,false}
             },
-            color = Color.magenta
-        };
-        pieces.Add(t);
+                color = Color.magenta
+            };
+            pieces.Add(t);
 
-        Piece i = new Piece
-        {
-            layout = new bool[,] {
+            Piece i = new Piece
+            {
+                layout = new bool[,] {
             {false,false,false,false},
             {true,true,true,true},
             {false,false,false,false},
             {false,false,false,false}
             },
-            color = Color.cyan
-        };
-        pieces.Add(i);
+                color = Color.cyan
+            };
+            pieces.Add(i);
 
-        Piece s1 = new Piece
-        {
-            layout = new bool[,] {
+            Piece s1 = new Piece
+            {
+                layout = new bool[,] {
             {false,true,true},
             {true,true,false},
             {false,false,false}
             },
-            color = Color.green
-        };
-        pieces.Add(s1);
+                color = Color.green
+            };
+            pieces.Add(s1);
 
-        Piece s2 = new Piece
-        {
-            layout = new bool[,] {
+            Piece s2 = new Piece
+            {
+                layout = new bool[,] {
             {true,true,false},
             {false,true,true},
             {false,false,false}
             },
-            color = Color.red
-        };
-        pieces.Add(s2);
+                color = Color.red
+            };
+            pieces.Add(s2);
 
-        Piece square = new Piece
-        {
-            layout = new bool[,] {
+            Piece square = new Piece
+            {
+                layout = new bool[,] {
             {true,true },
             {true,true},
             },
-            color = Color.yellow
-        };
-        pieces.Add(square);
+                color = Color.yellow
+            };
+            pieces.Add(square);
 
-        Piece l1 = new Piece
-        {
-            layout = new bool[,] {
+            Piece l1 = new Piece
+            {
+                layout = new bool[,] {
             {true,false,false},
             {true,true,true},
             {false,false,false}
             },
-            color = Color.blue
-        };
-        pieces.Add(l1);
+                color = Color.blue
+            };
+            pieces.Add(l1);
 
-        Piece l2 = new Piece
-        {
-            layout = new bool[,] {
+            Piece l2 = new Piece
+            {
+                layout = new bool[,] {
             {false,false,true},
             {true,true,true},
             {false,false,false}
             },
-            color = new Color(255.0f / 256.0f, 128.0f / 256.0f, 0.0f, 1.0f) //orange
-        };
-        pieces.Add(l2);
+                color = new Color(255.0f / 256.0f, 128.0f / 256.0f, 0.0f, 1.0f) //orange
+            };
+            pieces.Add(l2);
+        }
+        else
+        {
+            Piece t = new Piece
+            {
+                layout = new bool[,] {
+            {true,false,true},
+            {true,true,true},
+            {false,false,false}
+            },
+                color = Color.magenta
+            };
+            pieces.Add(t);
+
+            Piece i = new Piece
+            {
+                layout = new bool[,] {
+            {false,false,false,true},
+            {true,true,true,true},
+            {false,false,false,false},
+            {false,false,false,false}
+            },
+                color = Color.cyan
+            };
+            pieces.Add(i);
+
+            Piece s1 = new Piece
+            {
+                layout = new bool[,] {
+            {false,true,false},
+            {true,true,false},
+            {false,false,false}
+            },
+                color = Color.green
+            };
+            pieces.Add(s1);
+
+            Piece s2 = new Piece
+            {
+                layout = new bool[,] {
+            {true,true,true},
+            {false,true,true},
+            {false,false,false}
+            },
+                color = Color.red
+            };
+            pieces.Add(s2);
+
+            Piece square = new Piece
+            {
+                layout = new bool[,] {
+            {true,false },
+            {false,true},
+            },
+                color = Color.yellow
+            };
+            pieces.Add(square);
+
+            Piece l1 = new Piece
+            {
+                layout = new bool[,] {
+            {true,false,false},
+            {true,true,true},
+            {false,false,true}
+            },
+                color = Color.blue
+            };
+            pieces.Add(l1);
+
+            Piece l2 = new Piece
+            {
+                layout = new bool[,] {
+            {false,true,true},
+            {true,true,true},
+            {false,false,false}
+            },
+                color = new Color(255.0f / 256.0f, 128.0f / 256.0f, 0.0f, 1.0f) //orange
+            };
+            pieces.Add(l2);
+        }
+      
         return pieces;
     }
 

@@ -20,6 +20,12 @@ public class Hoverable : MonoBehaviour
         isHovered = false;
     }
 
+
+    private void OnDisable()
+    {
+        isHovered = false;
+    }
+
     // Use this for initialization
     void Start()
     {
